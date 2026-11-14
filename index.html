@@ -350,14 +350,14 @@ function mouseover(comp){
     day=Math.floor((date-jour)/(1000*60*60*24))
    
     if(day>0){
-        document.getElementById('p1').innerText=`AFTER ${day} day`
+        document.getElementById('p1').innerText=`BEFORE ${day} day`
     }
     else if(day==0){
         document.getElementById('p1').innerText=`TODAY`
     }
     else{
         e=Math.abs(day)
-        document.getElementById('p1').innerText=`BEFORE ${e} day`
+        document.getElementById('p1').innerText=`AFTER  ${e} day`
     }
 
     
