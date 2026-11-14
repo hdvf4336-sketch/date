@@ -5,79 +5,240 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        table{
-            width: 100%;
-        }
-        body{
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
-            margin: 0;
-            padding: 20px;
-        }
+        /* ==========================================================
+   Kalender – style-pro.css
+   Developed from the original: same palette (navy #2c3e50,
+   blue #3498db, red #e74c3c), but no fixed pixel offsets.
+   ========================================================== */
 
-        table{
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #fff;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
+/* ---------- Tokens ---------- */
+:root {
+  --bg:        #f4f6f9;
+  --surface:   #ffffff;
+  --ink:       #1f2d3a;
+  --head:      #2c3e50;
+  --head-ink:  #ffffff;
+  --line:      #dde3ea;
+  --cell:      #f3f6f8;
+  --cell-hover:#3498db;
+  --weekend:   #e9eef3;
+  --today:     #e74c3c;
+  --nav-hover: #e8f3ff;
+  --nav-ink:   #2f9bff;
+  --radius:    12px;
+  --shadow:    0 4px 14px rgba(0, 0, 0, .08);
+  --ease:      .2s ease;
+}
 
-        th{
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: center;
-        }
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:        #11181f;
+    --surface:   #18222c;
+    --ink:       #e6edf3;
+    --head:      #243546;
+    --line:      #2b3a48;
+    --cell:      #1e2b37;
+    --weekend:   #223140;
+    --nav-hover: #1c3550;
+  }
+}
 
-        
-        tr:first-child th{
-            background-color: #2c3e50;
-            color: white;
-            font-weight: bold;
-        }
+/* ---------- Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
 
-      
-        input[type="button"]{
-            width: 100%;
-            padding: 15px 0;
-            border: none;
-            background-color: #ecf0f1;
-            cursor: pointer;
-            font-size: 16px;
-            transition: 0.2s;
-        }
+body {
+  margin: 0;
+  padding: clamp(12px, 3vw, 32px);
+  font-family: "Segoe UI", system-ui, Arial, sans-serif;
+  background-color: var(--bg);
+  color: var(--ink);
 
-        
-        input[type="button"]:hover{
-            background-color: #3498db;
-            color: white;
-        }
+  /* [prev] [month / year] [next] – replaces left:550px; bottom:50px */
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  max-width: 62rem;
+  margin-inline: auto;
+}
 
-        .today{
-            background-color: #e74c3c !important;
-            color: white;
-        }
-        .div{
-            display: flex;
-            position: relative;
-            left: 550px;
-            bottom: 50px;
-        }
-        #addm, #bu {
-            background: none;
-            border: none;
-            font-size: 30px;
-            color: #000;
-            width: 45px;
-            height: 45px;
-            cursor: pointer;
-            border-radius: 50%;
-            transition: 0.2s;
-            text-align: center;
-        }
-        #addm:hover, #bu:hover {
-            background: #e8f3ff;
-            color: #2f9bff;
-        }
+/* ---------- Navigation ---------- */
+#addm, #bu {
+  grid-row: 1;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--ink);
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--ease), color var(--ease), transform .15s ease;
+}
+
+#addm { grid-column: 1; }
+#bu   { grid-column: 3; }
+
+#addm:hover, #bu:hover  { background: var(--nav-hover); color: var(--nav-ink); }
+#addm:active, #bu:active { transform: scale(.9); }
+
+/* ---------- Month / year ---------- */
+.div {
+  grid-row: 1;
+  grid-column: 2;
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: .4ch;
+  direction: ltr;
+}
+
+.div h1 {
+  margin: 0;
+  font-size: clamp(1.4rem, 4.5vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: -.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.div h1:nth-child(2) { font-weight: 300; opacity: .5; }
+
+/* ---------- Table ---------- */
+table {
+  grid-column: 1 / -1;
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+th, td {
+  padding: 0;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+}
+
+th:last-child, td:last-child { border-right: 0; }
+tbody tr:last-child > *      { border-bottom: 0; }
+
+/* Header row */
+thead th {
+  padding: 12px 4px;
+  background-color: var(--head);
+  color: var(--head-ink);
+  font-size: clamp(.6rem, 2.1vw, .95rem);
+  font-weight: 600;
+  border-color: rgba(255, 255, 255, .12);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Day cells ---------- */
+tbody th, tbody td {
+  height: clamp(44px, 9vw, 72px);
+  background-color: var(--cell);
+  font-weight: 500;
+}
+
+/* Weekend columns: Sonntag (1st) and Samstag (7th) */
+tbody > tr > :nth-child(7n+1),
+tbody > tr > :nth-child(7n) {
+  background-color: var(--weekend);
+}
+
+/* Day buttons fill the whole cell */
+input[type="button"],
+tbody button {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: clamp(.85rem, 2.8vw, 1.1rem);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background-color var(--ease), color var(--ease), transform .15s ease;
+}
+
+input[type="button"]:hover,
+tbody button:hover {
+  background-color: var(--cell-hover);
+  color: #fff;
+}
+
+input[type="button"]:active,
+tbody button:active { transform: scale(.94); }
+
+/* Empty / disabled cells */
+input[type="button"][value=""],
+input[type="button"]:disabled,
+tbody button:empty,
+tbody button:disabled {
+  cursor: default;
+  pointer-events: none;
+  opacity: .4;
+}
+
+/* ---------- Today (.today and .tode both work) ---------- */
+.today, .tode {
+  background-color: var(--today) !important;
+  color: #fff !important;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 3px var(--surface);
+}
+
+/* Inherits the red when the class is on the cell, not on the button */
+.today > input[type="button"], .tode > input[type="button"],
+.today > button,               .tode > button {
+  background: transparent;
+  color: inherit;
+}
+
+/* ---------- Focus & note ---------- */
+:is(#addm, #bu, input[type="button"], tbody button):focus-visible {
+  outline: 3px solid var(--nav-ink);
+  outline-offset: -3px;
+}
+
+#p1 {
+  grid-column: 1 / -1;
+  margin: 0;
+  text-align: center;
+  opacity: .75;
+}
+
+/* ---------- Small screens ---------- */
+@media (max-width: 30rem) {
+  body { padding: 10px; gap: 8px; }
+  thead th { padding-inline: 0; font-size: .58rem; letter-spacing: -.02em; }
+}
+
+/* ---------- Motion & print ---------- */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+
+@media print {
+  body { background: #fff; padding: 0; }
+  #addm, #bu { display: none; }
+  table { box-shadow: none; }
+}
        
     </style>
 </head>
